@@ -249,11 +249,10 @@ else:
                 </div>
             </div>
             
+            # [수정할 부분] 이 부분을 찾아서 아래처럼 바꿔주세요!
             <div class="bottom-section">
                 <div class="info-left">
-                    <span>접속일: {st.session_state['last_time']}</span>
-                    <span>장소: {st.session_state['last_place']}</span>
-                </div>
+                    <span>{st.session_state['last_time']}</span>  <span>{st.session_state['last_place']}</span> </div>
                 <div class="stats-right">
                     <div class="pp-text">PP<br>{st.session_state['pp']}</div>
                     <div class="playcount-text">Play: {st.session_state['play_count']}</div>
