@@ -6,7 +6,7 @@ import time
 # --- 0. 웹페이지 설정 ---
 st.set_page_config(page_title="피닉스 펌프 잇 업 아카이브", page_icon="img2.jpg", layout="centered", initial_sidebar_state="collapsed")
 
-# --- 🎨 좌우 분할 레이아웃이 적용된 CSS ---
+# --- 🎨 우측 사진 + 하단 3줄 레이아웃 CSS ---
 st.markdown("""
 <style>
     [data-testid="stAppViewBlockContainer"] {
@@ -23,33 +23,48 @@ st.markdown("""
         margin-bottom: 20px;
     }
     
-    /* 상단: 사진(좌) + 닉네임(우) */
+    /* 상단: 닉네임(좌) + 사진(우, 원본비율) */
     .top-section {
         display: flex;
+        justify-content: space-between; /* 양끝 정렬 */
         align-items: center;
         gap: 15px;
         margin-bottom: 20px;
     }
-    .profile-img {
-        width: 100px;
-        height: 100px;
-        border-radius: 25%;
-        object-fit: cover;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        flex-shrink: 0;
-    }
     .name-section {
         text-align: left;
+        flex-grow: 1; /* 남은 공간 다 차지 */
+    }
+    .profile-img-wrap {
+        width: 100px;
+        height: 100px;
+        flex-shrink: 0; /* 크기 고정 */
+        border-radius: 12px;
+        background-color: #f1f2f6; /* 사진 여백 배경색 */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        border: 1px solid #eee;
+    }
+    .profile-img {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        display: block;
+        /* object-fit: contain; -> 원본 비율 유지하며 박스안에 맞춤 */
     }
     
-    /* 하단: 시간&장소(좌) + PP(우) */
+    /* 하단: 시간&장소(좌) + PP&플레이카운트(우) */
     .bottom-section {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: flex-end; /* 아래쪽 기준 정렬 */
         background-color: #f8f9fa;
         padding: 15px;
         border-radius: 8px;
+        gap: 10px;
     }
     .info-left {
         display: flex;
@@ -59,17 +74,28 @@ st.markdown("""
         color: #555;
         font-size: 0.85em;
     }
-    .pp-right {
+    .stats-right {
         text-align: right;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 5px; /* PP와 플레이카운트 사이 간격 */
+    }
+    .pp-text {
         color: #e74c3c;
         font-size: 1.1em;
         font-weight: 900;
-        flex-shrink: 0;
+        line-height: 1.2;
+    }
+    .playcount-text {
+        color: #34495e;
+        font-size: 0.85em;
+        font-weight: bold;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- 🎯 내 링크 설정 ---
+# --- 내 링크 설정 ---
 MY_LINKS = [
     {"title": "유튜브 채널", "url": "https://youtube.com"},
     {"title": "인스타그램", "url": "https://instagram.com"}
@@ -83,17 +109,20 @@ if 'my_id' not in st.session_state:
 if 'my_pw' not in st.session_state:
     st.session_state['my_pw'] = ""
 if 'nickname' not in st.session_state:
-    st.session_state['nickname'] = "아직 데이터를 불러오지 않았습니다."
+    st.session_state['nickname'] = "데이터를 불러와주세요."
 if 'profile_img' not in st.session_state:
     st.session_state['profile_img'] = None
 if 'title' not in st.session_state:
-    st.session_state['title'] = "없음"
+    st.session_state['title'] = ""
 if 'last_time' not in st.session_state:
     st.session_state['last_time'] = "-"
 if 'last_place' not in st.session_state:
     st.session_state['last_place'] = "-"
 if 'pp' not in st.session_state:
     st.session_state['pp'] = "0"
+# [신규] 플레이 카운트 기억 상자
+if 'play_count' not in st.session_state:
+    st.session_state['play_count'] = "0"
 
 # --- 2. 로봇(크롤러) 함수 만들기 ---
 def run_crawler(user_id, user_pw):
@@ -126,11 +155,19 @@ def run_crawler(user_id, user_pw):
         fetched_place = driver.find_element(By.XPATH, '//*[@id="contents"]/div[1]/div/div/div[1]/div[2]/div[2]/ul/li[2]/i').text
         fetched_pp = driver.find_element(By.XPATH, '//*[@id="contents"]/div[1]/div/div/div[1]/div[3]/p/i[2]').text
         
-        return fetched_nickname, fetched_img, fetched_title, fetched_time, fetched_place, fetched_pp
+        # [수정] 플레이 카운트 XPath 추가 위치
+        # 유저님이 따오신 플레이 카운트 XPath를 아래 따옴표 안에 넣어주세요!
+        try:
+            fetched_play_count = driver.find_element(By.XPATH, '//*[@id="contents"]/div[5]/div/div[1]/div[1]/div[1]/i[2]').text
+        except:
+            fetched_play_count = "0" # 못 가져오면 0으로 처리
+        
+        # 7개 데이터를 반환합니다.
+        return fetched_nickname, fetched_img, fetched_title, fetched_time, fetched_place, fetched_pp, fetched_play_count
         
     except Exception as e:
-        st.error("크롤링 중 문제가 발생했어요! XPath나 인터넷 연결을 확인해주세요.")
-        return None, None, None, None, None, None
+        st.error(f"크롤링 중 문제가 발생했어요! 에러 내용: {e}")
+        return None, None, None, None, None, None, None
     finally:
         driver.quit()
 
@@ -173,23 +210,18 @@ else:
     st.sidebar.divider()
     
     if st.sidebar.button("연동 해제 (로그아웃)", use_container_width=True):
-        st.session_state['logged_in'] = False
-        st.session_state['my_id'] = ""
-        st.session_state['my_pw'] = ""
-        st.session_state['nickname'] = "아직 데이터를 불러오지 않았습니다."
-        st.session_state['profile_img'] = None
-        st.session_state['title'] = "없음"
-        st.session_state['last_time'] = "-"
-        st.session_state['last_place'] = "-"
-        st.session_state['pp'] = "0"
+        # 기억 상자 초기화
+        for key in st.session_state.keys():
+            del st.session_state[key]
         st.rerun()
 
     # --- 메인 프로필 화면 ---
-    st.image("img1.jpg", use_container_width=True)
         
-    if st.button("새로고침", use_container_width=True):
+    if st.button("🔄 데이터 새로고침", use_container_width=True):
         with st.spinner('가져오는 중...'):
-            new_nick, new_img, new_title, new_time, new_place, new_pp = run_crawler(st.session_state['my_id'], st.session_state['my_pw'])
+            # 7개 데이터를 받아옵니다.
+            new_nick, new_img, new_title, new_time, new_place, new_pp, new_play = run_crawler(st.session_state['my_id'], st.session_state['my_pw'])
+            
             if new_nick:
                 st.session_state['nickname'] = new_nick
                 st.session_state['profile_img'] = new_img
@@ -197,18 +229,23 @@ else:
                 st.session_state['last_time'] = new_time
                 st.session_state['last_place'] = new_place
                 st.session_state['pp'] = new_pp
+                st.session_state['play_count'] = new_play # 플레이 카운트 저장
+                
                 st.success("데이터 새로고침 완료!")
                 time.sleep(1)
                 st.rerun()
     
     if st.session_state['profile_img']:
+        # [수정] HTML 구조 변경: 우측 사진 배치 + 하단 플레이카운트 추가
         profile_box_html = f"""
         <div class="profile-box">
             <div class="top-section">
-                <img src="{st.session_state['profile_img']}" class="profile-img">
                 <div class="name-section">
                     <p style="margin: 0; color: #7f8c8d; font-size: 0.85em; font-weight: bold;">{st.session_state['title']}</p>
                     <p style="margin: 5px 0 0 0; font-size: 1.6em; font-weight: 900; color: #2c3e50;">{st.session_state['nickname']}</p>
+                </div>
+                <div class="profile-img-wrap">
+                    <img src="{st.session_state['profile_img']}" class="profile-img">
                 </div>
             </div>
             
@@ -217,12 +254,13 @@ else:
                     <span>접속일: {st.session_state['last_time']}</span>
                     <span>장소: {st.session_state['last_place']}</span>
                 </div>
-                <div class="pp-right">
-                    PP<br>{st.session_state['pp']}
+                <div class="stats-right">
+                    <div class="pp-text">PP<br>{st.session_state['pp']}</div>
+                    <div class="playcount-text">Play: {st.session_state['play_count']}</div>
                 </div>
             </div>
         </div>
         """
         st.markdown(profile_box_html, unsafe_allow_html=True)
     else:
-        st.markdown("**데이터를 불러와주세요! 상단의 [새로고침] 버튼을 누르면 시작됩니다.**")
+        st.markdown("**데이터를 불러와주세요! 상단의 [데이터 새로고침] 버튼을 누르면 시작됩니다.**")
