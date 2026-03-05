@@ -6,7 +6,7 @@ import time
 # --- 0. 웹페이지 설정 ---
 st.set_page_config(page_title="피닉스 펌프 잇 업 아카이브", page_icon="img2.jpg", layout="centered", initial_sidebar_state="collapsed")
 
-# --- 🎨 우측 사진 + 하단 3줄 레이아웃 CSS ---
+# --- 🎨 좌측 사진 + 우측 글씨 레이아웃 CSS ---
 st.markdown("""
 <style>
     [data-testid="stAppViewBlockContainer"] {
@@ -23,17 +23,12 @@ st.markdown("""
         margin-bottom: 20px;
     }
     
-    /* 상단: 닉네임(좌) + 사진(우, 원본비율) */
+    /* 상단: 사진(좌) + 닉네임(우) */
     .top-section {
         display: flex;
-        justify-content: space-between; 
         align-items: center;
         gap: 15px;
         margin-bottom: 20px;
-    }
-    .name-section {
-        text-align: left;
-        flex-grow: 1; 
     }
     .profile-img-wrap {
         width: 100px;
@@ -53,6 +48,10 @@ st.markdown("""
         width: auto;
         height: auto;
         display: block;
+    }
+    .name-section {
+        text-align: left;
+        flex-grow: 1; 
     }
     
     /* 하단: 시간&장소(좌) + PP&플레이카운트(우) */
@@ -100,7 +99,7 @@ MY_LINKS = [
     {"title": "인스타그램", "url": "https://instagram.com"}
 ]
 
-# --- 1. 기억 상자 (Session State) 세팅 ---
+# --- 1. 기억 상자 세팅 ---
 if 'logged_in' not in st.session_state:
     st.session_state['logged_in'] = False
 if 'my_id' not in st.session_state:
@@ -154,7 +153,7 @@ def run_crawler(user_id, user_pw):
         fetched_pp = driver.find_element(By.XPATH, '//*[@id="contents"]/div[1]/div/div/div[1]/div[3]/p/i[2]').text
         
         try:
-            # 🚨 서영님! 요기 아래 따옴표 안에 아까 찾으신 XPath만 다시 넣어주세요! 🚨
+            # 🚨 아래 '여기에_플레이카운트_XPath' 부분에 찾으신 XPath를 넣어주세요!
             fetched_play_count = driver.find_element(By.XPATH, '//*[@id="contents"]/div[5]/div/div[1]/div[1]/div[1]/i[2]').text
         except:
             fetched_play_count = "0" 
@@ -169,7 +168,6 @@ def run_crawler(user_id, user_pw):
 
 # --- 3. 웹사이트 화면 그리기 ---
 
-# [화면 A] 로그인 전
 if not st.session_state['logged_in']:
     
     st.image("img1.jpg", use_container_width=True)
@@ -189,9 +187,7 @@ if not st.session_state['logged_in']:
         else:
             st.warning("아이디와 비밀번호를 모두 입력해주세요.")
 
-# [화면 B] 로그인 후
 else:
-    # --- 좌측 3줄 메뉴 (사이드바) ---
     st.sidebar.title("메뉴")
     st.sidebar.success(f"현재 연동된 아이디:\n{st.session_state['my_id']}")
     
@@ -209,8 +205,6 @@ else:
         for key in st.session_state.keys():
             del st.session_state[key]
         st.rerun()
-
-    # --- 메인 프로필 화면 ---
         
     if st.button("🔄 데이터 새로고침", use_container_width=True):
         with st.spinner('가져오는 중...'):
@@ -230,29 +224,30 @@ else:
                 st.rerun()
     
     if st.session_state['profile_img']:
+        # [수정] 들여쓰기 버그를 막기 위해 HTML 코드를 맨 앞으로 바짝 당겨서 작성했습니다.
         profile_box_html = f"""
-        <div class="profile-box">
-            <div class="top-section">
-                <div class="name-section">
-                    <p style="margin: 0; color: #7f8c8d; font-size: 0.85em; font-weight: bold;">{st.session_state['title']}</p>
-                    <p style="margin: 5px 0 0 0; font-size: 1.6em; font-weight: 900; color: #2c3e50;">{st.session_state['nickname']}</p>
-                </div>
-                <div class="profile-img-wrap">
-                    <img src="{st.session_state['profile_img']}" class="profile-img">
-                </div>
-            </div>
-            
-            <div class="bottom-section">
-                <div class="info-left">
-                    <span>{st.session_state['last_time']}</span>
-                    <span>{st.session_state['last_place']}</span>
-                </div>
-                <div class="stats-right">
-                    <div class="pp-text">PP<br>{st.session_state['pp']}</div>
-                    <div class="playcount-text">Play: {st.session_state['play_count']}</div>
-                </div>
-            </div>
+<div class="profile-box">
+    <div class="top-section">
+        <div class="profile-img-wrap">
+            <img src="{st.session_state['profile_img']}" class="profile-img">
         </div>
+        <div class="name-section">
+            <p style="margin: 0; color: #7f8c8d; font-size: 0.85em; font-weight: bold;">{st.session_state['title']}</p>
+            <p style="margin: 5px 0 0 0; font-size: 1.6em; font-weight: 900; color: #2c3e50;">{st.session_state['nickname']}</p>
+        </div>
+    </div>
+    
+    <div class="bottom-section">
+        <div class="info-left">
+            <span>{st.session_state['last_time']}</span>
+            <span>{st.session_state['last_place']}</span>
+        </div>
+        <div class="stats-right">
+            <div class="pp-text">PP<br>{st.session_state['pp']}</div>
+            <div class="playcount-text">Play: {st.session_state['play_count']}</div>
+        </div>
+    </div>
+</div>
         """
         st.markdown(profile_box_html, unsafe_allow_html=True)
     else:
