@@ -6,7 +6,7 @@ import time
 # --- 0. 웹페이지 설정 ---
 st.set_page_config(page_title="피닉스 펌프 잇 업 아카이브", page_icon="img2.jpg", layout="centered", initial_sidebar_state="collapsed")
 
-# --- 1. 좌측 사진 + 우측 글씨 레이아웃 CSS ---
+# --- 1. 좌측 사진 + 우측 글씨 + 스타일 통일 CSS ---
 st.markdown("""
 <style>
     [data-testid="stAppViewBlockContainer"] {
@@ -28,24 +28,22 @@ st.markdown("""
         gap: 15px;
         margin-bottom: 20px;
     }
+    /* 사진 뒤에 있던 회색 여백 박스 제거 */
     .profile-img-wrap {
-        width: 100px;
-        height: 100px;
         flex-shrink: 0; 
-        border-radius: 12px;
-        background-color: #f1f2f6; 
         display: flex;
         align-items: center;
         justify-content: center;
-        overflow: hidden;
-        border: 1px solid #eee;
     }
+    /* 사진 자체에 라운드 처리 및 크기 조절 */
     .profile-img {
-        max-width: 100%;
-        max-height: 100%;
+        max-width: 110px;
+        max-height: 100px;
         width: auto;
         height: auto;
+        border-radius: 12px;
         display: block;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
     .name-section {
         text-align: left;
@@ -75,15 +73,10 @@ st.markdown("""
         flex-direction: column;
         gap: 5px; 
     }
-    .pp-text {
-        color: #e74c3c;
-        font-size: 1.1em;
-        font-weight: 900;
-        line-height: 1.2;
-    }
-    .playcount-text {
-        color: #34495e;
-        font-size: 0.85em;
+    /* PP와 Play 카운트 색상 및 볼드체 통일 */
+    .pp-text, .playcount-text {
+        color: #2c3e50;
+        font-size: 1em;
         font-weight: bold;
     }
 </style>
@@ -149,7 +142,7 @@ def run_crawler(user_id, user_pw):
         fetched_pp = driver.find_element(By.XPATH, '//*[@id="contents"]/div[1]/div/div/div[1]/div[3]/p/i[2]').text
         
         try:
-            # 전달해주신 플레이 카운트 XPath 적용 완료!
+            # 전달해주신 플레이 카운트 XPath 유지
             fetched_play_count = driver.find_element(By.XPATH, '//*[@id="contents"]/div[5]/div/div[1]/div[1]/div[1]/i[2]').text
         except:
             fetched_play_count = "0" 
