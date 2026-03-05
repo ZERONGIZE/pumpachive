@@ -22,8 +22,6 @@ st.markdown("""
         box-shadow: 2px 2px 10px rgba(0,0,0,0.05);
         margin-bottom: 20px;
     }
-    
-    /* 상단: 사진(좌) + 닉네임(우) */
     .top-section {
         display: flex;
         align-items: center;
@@ -53,8 +51,6 @@ st.markdown("""
         text-align: left;
         flex-grow: 1; 
     }
-    
-    /* 하단: 시간&장소(좌) + PP&플레이카운트(우) */
     .bottom-section {
         display: flex;
         justify-content: space-between;
@@ -224,31 +220,9 @@ else:
                 st.rerun()
     
     if st.session_state['profile_img']:
-        # [수정] 들여쓰기 버그를 막기 위해 HTML 코드를 맨 앞으로 바짝 당겨서 작성했습니다.
-        profile_box_html = f"""
-<div class="profile-box">
-    <div class="top-section">
-        <div class="profile-img-wrap">
-            <img src="{st.session_state['profile_img']}" class="profile-img">
-        </div>
-        <div class="name-section">
-            <p style="margin: 0; color: #7f8c8d; font-size: 0.85em; font-weight: bold;">{st.session_state['title']}</p>
-            <p style="margin: 5px 0 0 0; font-size: 1.6em; font-weight: 900; color: #2c3e50;">{st.session_state['nickname']}</p>
-        </div>
-    </div>
-    
-    <div class="bottom-section">
-        <div class="info-left">
-            <span>{st.session_state['last_time']}</span>
-            <span>{st.session_state['last_place']}</span>
-        </div>
-        <div class="stats-right">
-            <div class="pp-text">PP<br>{st.session_state['pp']}</div>
-            <div class="playcount-text">Play: {st.session_state['play_count']}</div>
-        </div>
-    </div>
-</div>
-        """
+        # 🚨 [수정] 스트림릿 버그 방지용! HTML을 공백 없이 한 줄로 완전히 압축했습니다. 
+        # (이 부분은 보기 불편하셔도 절대 엔터나 스페이스바를 넣지 마세요!)
+        profile_box_html = f"""<div class="profile-box"><div class="top-section"><div class="profile-img-wrap"><img src="{st.session_state['profile_img']}" class="profile-img"></div><div class="name-section"><p style="margin: 0; color: #7f8c8d; font-size: 0.85em; font-weight: bold;">{st.session_state['title']}</p><p style="margin: 5px 0 0 0; font-size: 1.6em; font-weight: 900; color: #2c3e50;">{st.session_state['nickname']}</p></div></div><div class="bottom-section"><div class="info-left"><span>{st.session_state['last_time']}</span><span>{st.session_state['last_place']}</span></div><div class="stats-right"><div class="pp-text">PP<br>{st.session_state['pp']}</div><div class="playcount-text">Play: {st.session_state['play_count']}</div></div></div></div>"""
         st.markdown(profile_box_html, unsafe_allow_html=True)
     else:
         st.markdown("**데이터를 불러와주세요! 상단의 [데이터 새로고침] 버튼을 누르면 시작됩니다.**")
