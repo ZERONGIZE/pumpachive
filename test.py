@@ -4,10 +4,9 @@ from selenium.webdriver.common.by import By
 import time
 
 # --- 0. 웹페이지 설정 ---
-# [수정] page_icon 부분에 이모지 대신 내가 올린 이미지 파일 이름(favicon.png)을 적어줍니다!
 st.set_page_config(page_title="피닉스 펌프 잇 업 아카이브", page_icon="img2.jpg", layout="centered", initial_sidebar_state="collapsed")
 
-# --- 🎨 아예 '모바일 앱'처럼 보이게 고정하는 CSS ---
+# --- 🎨 좌우 분할 레이아웃이 적용된 CSS ---
 st.markdown("""
 <style>
     [data-testid="stAppViewBlockContainer"] {
@@ -18,30 +17,54 @@ st.markdown("""
     .profile-box {
         border: 1px solid #ddd;
         border-radius: 12px;
-        padding: 25px 15px;
+        padding: 20px;
         background-color: white;
         box-shadow: 2px 2px 10px rgba(0,0,0,0.05);
         margin-bottom: 20px;
-        text-align: center;
     }
-    .profile-content {
+    
+    /* 상단: 사진(좌) + 닉네임(우) */
+    .top-section {
         display: flex;
-        flex-direction: column;
         align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
     }
-    .profile-img-wrap {
-        margin-bottom: 15px;
+    .profile-img {
+        width: 100px;
+        height: 100px;
+        border-radius: 25%;
+        object-fit: cover;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        flex-shrink: 0;
     }
-    .stat-row {
+    .name-section {
+        text-align: left;
+    }
+    
+    /* 하단: 시간&장소(좌) + PP(우) */
+    .bottom-section {
         display: flex;
-        flex-direction: column;
-        gap: 6px;
-        color: #555;
-        font-size: 0.9em;
-        margin-top: 15px;
+        justify-content: space-between;
+        align-items: center;
         background-color: #f8f9fa;
         padding: 15px;
         border-radius: 8px;
+    }
+    .info-left {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        text-align: left;
+        color: #555;
+        font-size: 0.85em;
+    }
+    .pp-right {
+        text-align: right;
+        color: #e74c3c;
+        font-size: 1.1em;
+        font-weight: 900;
+        flex-shrink: 0;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -116,10 +139,8 @@ def run_crawler(user_id, user_pw):
 # [화면 A] 로그인 전
 if not st.session_state['logged_in']:
     
-    # [수정] 텍스트 제목을 지우고 대문 사진을 띄웁니다.
-    # use_container_width=True 덕분에 화면 폭에 맞춰서 자동으로 예쁘게 줄어듭니다!
     st.image("img1.jpg", use_container_width=True)
-    st.markdown("<br>", unsafe_allow_html=True) # 사진 아래 살짝 띄어쓰기
+    st.markdown("<br>", unsafe_allow_html=True) 
     
     st.info("펌프 잇 업 공식 홈페이지의 아이디와 비밀번호를 입력해주세요.")
     
@@ -141,7 +162,7 @@ else:
     st.sidebar.title("메뉴")
     st.sidebar.success(f"현재 연동된 아이디:\n{st.session_state['my_id']}")
     
-    st.sidebar.markdown("### 🔗 내 링크")
+    st.sidebar.markdown("### 내 링크")
     for link in MY_LINKS:
         if link["title"] and link["url"]:
             st.sidebar.markdown(
@@ -164,9 +185,9 @@ else:
         st.rerun()
 
     # --- 메인 프로필 화면 ---
-    # [수정] 메인 화면 위쪽에도 텍스트 대신 대문 사진을 똑같이 띄워줍니다.
+    st.image("img1.jpg", use_container_width=True)
         
-    if st.button("🔄 새로고침", use_container_width=True):
+    if st.button("새로고침", use_container_width=True):
         with st.spinner('가져오는 중...'):
             new_nick, new_img, new_title, new_time, new_place, new_pp = run_crawler(st.session_state['my_id'], st.session_state['my_pw'])
             if new_nick:
@@ -183,22 +204,25 @@ else:
     if st.session_state['profile_img']:
         profile_box_html = f"""
         <div class="profile-box">
-            <div class="profile-content">
-                <div class="profile-img-wrap">
-                    <img src="{st.session_state['profile_img']}" style="width: 120px; height: 120px; border-radius: 30%; object-fit: cover; display: block; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
+            <div class="top-section">
+                <img src="{st.session_state['profile_img']}" class="profile-img">
+                <div class="name-section">
+                    <p style="margin: 0; color: #7f8c8d; font-size: 0.85em; font-weight: bold;">{st.session_state['title']}</p>
+                    <p style="margin: 5px 0 0 0; font-size: 1.6em; font-weight: 900; color: #2c3e50;">{st.session_state['nickname']}</p>
                 </div>
-                <div class="profile-details">
-                    <p style="margin: 0; color: #7f8c8d; font-size: 0.9em; font-weight: bold;">🏅 {st.session_state['title']}</p>
-                    <p style="margin: 5px 0 0 0; font-size: 1.8em; font-weight: 900; color: #2c3e50;">{st.session_state['nickname']}</p>
-                    <div class="stat-row">
-                        <span>🕒 <b>접속일:</b> {st.session_state['last_time']}</span>
-                        <span>📍 <b>장소:</b> {st.session_state['last_place']}</span>
-                        <span style="color: #e74c3c;">💰 <b>PP:</b> {st.session_state['pp']}</span>
-                    </div>
+            </div>
+            
+            <div class="bottom-section">
+                <div class="info-left">
+                    <span>접속일: {st.session_state['last_time']}</span>
+                    <span>장소: {st.session_state['last_place']}</span>
+                </div>
+                <div class="pp-right">
+                    PP<br>{st.session_state['pp']}
                 </div>
             </div>
         </div>
         """
         st.markdown(profile_box_html, unsafe_allow_html=True)
     else:
-        st.markdown("👻 **데이터를 불러와주세요! 상단의 [새로고침] 버튼을 누르면 시작됩니다.**")
+        st.markdown("**데이터를 불러와주세요! 상단의 [새로고침] 버튼을 누르면 시작됩니다.**")
