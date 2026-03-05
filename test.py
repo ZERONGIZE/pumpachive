@@ -4,19 +4,17 @@ from selenium.webdriver.common.by import By
 import time
 
 # --- 0. 웹페이지 설정 ---
-st.set_page_config(page_title="피닉스 펌프 잇 업 아카이브", page_icon="💃", layout="centered", initial_sidebar_state="collapsed")
+# [수정] page_icon 부분에 이모지 대신 내가 올린 이미지 파일 이름(favicon.png)을 적어줍니다!
+st.set_page_config(page_title="피닉스 펌프 잇 업 아카이브", page_icon="img2.jpg", layout="centered", initial_sidebar_state="collapsed")
 
 # --- 🎨 아예 '모바일 앱'처럼 보이게 고정하는 CSS ---
 st.markdown("""
 <style>
-    /* 1. PC 모니터로 봐도 앱 화면처럼 폭을 좁게 고정! */
     [data-testid="stAppViewBlockContainer"] {
         max-width: 450px !important; 
         padding-top: 2rem;
         padding-bottom: 2rem;
     }
-
-    /* 2. 프로필 박스는 무조건 세로 정렬(모바일 뷰)로 고정 */
     .profile-box {
         border: 1px solid #ddd;
         border-radius: 12px;
@@ -24,19 +22,19 @@ st.markdown("""
         background-color: white;
         box-shadow: 2px 2px 10px rgba(0,0,0,0.05);
         margin-bottom: 20px;
-        text-align: center; /* 텍스트 무조건 가운데 정렬 */
+        text-align: center;
     }
     .profile-content {
         display: flex;
-        flex-direction: column; /* 가로가 아닌 무조건 세로 배열 */
+        flex-direction: column;
         align-items: center;
     }
     .profile-img-wrap {
-        margin-bottom: 15px; /* 사진과 이름 사이 간격 */
+        margin-bottom: 15px;
     }
     .stat-row {
         display: flex;
-        flex-direction: column; /* 시각, 장소, PP도 세로로 깔끔하게 정리 */
+        flex-direction: column;
         gap: 6px;
         color: #555;
         font-size: 0.9em;
@@ -48,7 +46,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 🎯 내 링크 설정 (여기에 링크를 적어주세요!) ---
+# --- 🎯 내 링크 설정 ---
 MY_LINKS = [
     {"title": "유튜브 채널", "url": "https://youtube.com"},
     {"title": "인스타그램", "url": "https://instagram.com"}
@@ -117,12 +115,11 @@ def run_crawler(user_id, user_pw):
 
 # [화면 A] 로그인 전
 if not st.session_state['logged_in']:
-    st.markdown("""
-    <div style='text-align: center; margin-bottom: 20px;'>
-        <h2 style='margin: 0;'>피닉스 펌프 잇 업</h2>
-        <span style='color: gray; font-size: 0.9rem; font-weight: bold;'>아카이브 by Zerong</span>
-    </div>
-    """, unsafe_allow_html=True)
+    
+    # [수정] 텍스트 제목을 지우고 대문 사진을 띄웁니다.
+    # use_container_width=True 덕분에 화면 폭에 맞춰서 자동으로 예쁘게 줄어듭니다!
+    st.image("img1.jpg", use_container_width=True)
+    st.markdown("<br>", unsafe_allow_html=True) # 사진 아래 살짝 띄어쓰기
     
     st.info("펌프 잇 업 공식 홈페이지의 아이디와 비밀번호를 입력해주세요.")
     
@@ -144,17 +141,15 @@ else:
     st.sidebar.title("메뉴")
     st.sidebar.success(f"현재 연동된 아이디:\n{st.session_state['my_id']}")
     
-    # [수정] 메인에 있던 링크를 사이드바로 옮겼습니다!
     st.sidebar.markdown("### 🔗 내 링크")
     for link in MY_LINKS:
         if link["title"] and link["url"]:
-            # 사이드바 안에서 꽉 차는 버튼 모양의 링크를 만들어줍니다.
             st.sidebar.markdown(
                 f"<a href='{link['url']}' target='_blank' style='display: block; text-align: center; text-decoration: none; background-color: #f1f2f6; padding: 10px; margin-bottom: 10px; border-radius: 8px; color: #2c3e50; font-weight: bold;'>{link['title']}</a>", 
                 unsafe_allow_html=True
             )
             
-    st.sidebar.divider() # 가로줄 긋기
+    st.sidebar.divider()
     
     if st.sidebar.button("연동 해제 (로그아웃)", use_container_width=True):
         st.session_state['logged_in'] = False
@@ -169,12 +164,8 @@ else:
         st.rerun()
 
     # --- 메인 프로필 화면 ---
-    st.markdown("""
-    <div style='text-align: center; margin-bottom: 10px;'>
-        <h3 style='margin: 0;'>피닉스 펌프 잇 업 아카이브</h3>
-        <span style='color: gray; font-size: 0.8rem; font-weight: bold;'>by Zerong</span>
-    </div>
-    """, unsafe_allow_html=True)
+    # [수정] 메인 화면 위쪽에도 텍스트 대신 대문 사진을 똑같이 띄워줍니다.
+    st.image("img2.jpg", use_container_width=True)
         
     if st.button("🔄 새로고침", use_container_width=True):
         with st.spinner('가져오는 중...'):
@@ -191,8 +182,6 @@ else:
                 st.rerun()
     
     if st.session_state['profile_img']:
-        
-        # [수정] 메인 화면에서는 링크 관련 HTML을 완전히 삭제했습니다.
         profile_box_html = f"""
         <div class="profile-box">
             <div class="profile-content">
