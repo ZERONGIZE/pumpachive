@@ -6,7 +6,7 @@ import time
 # --- 0. 웹페이지 설정 ---
 st.set_page_config(page_title="피닉스 펌프 잇 업 아카이브", page_icon="img2.jpg", layout="centered", initial_sidebar_state="collapsed")
 
-# --- 🎨 좌측 사진 + 우측 글씨 레이아웃 CSS ---
+# --- 1. 좌측 사진 + 우측 글씨 레이아웃 CSS ---
 st.markdown("""
 <style>
     [data-testid="stAppViewBlockContainer"] {
@@ -89,13 +89,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- 내 링크 설정 ---
+# --- 2. 내 링크 설정 ---
 MY_LINKS = [
     {"title": "유튜브 채널", "url": "https://youtube.com"},
     {"title": "인스타그램", "url": "https://instagram.com"}
 ]
 
-# --- 1. 기억 상자 세팅 ---
+# --- 3. 기억 상자 세팅 ---
 if 'logged_in' not in st.session_state:
     st.session_state['logged_in'] = False
 if 'my_id' not in st.session_state:
@@ -117,7 +117,7 @@ if 'pp' not in st.session_state:
 if 'play_count' not in st.session_state:
     st.session_state['play_count'] = "0"
 
-# --- 2. 로봇(크롤러) 함수 만들기 ---
+# --- 4. 로봇(크롤러) 함수 만들기 ---
 def run_crawler(user_id, user_pw):
     options = webdriver.ChromeOptions()
     options.add_argument('--headless') 
@@ -149,7 +149,7 @@ def run_crawler(user_id, user_pw):
         fetched_pp = driver.find_element(By.XPATH, '//*[@id="contents"]/div[1]/div/div/div[1]/div[3]/p/i[2]').text
         
         try:
-            # 🚨 아래 '여기에_플레이카운트_XPath' 부분에 찾으신 XPath를 넣어주세요!
+            # 전달해주신 플레이 카운트 XPath 적용 완료!
             fetched_play_count = driver.find_element(By.XPATH, '//*[@id="contents"]/div[5]/div/div[1]/div[1]/div[1]/i[2]').text
         except:
             fetched_play_count = "0" 
@@ -162,7 +162,7 @@ def run_crawler(user_id, user_pw):
     finally:
         driver.quit()
 
-# --- 3. 웹사이트 화면 그리기 ---
+# --- 5. 웹사이트 화면 그리기 ---
 
 if not st.session_state['logged_in']:
     
@@ -202,7 +202,7 @@ else:
             del st.session_state[key]
         st.rerun()
         
-    if st.button("🔄 데이터 새로고침", use_container_width=True):
+    if st.button("데이터 새로고침", use_container_width=True):
         with st.spinner('가져오는 중...'):
             new_nick, new_img, new_title, new_time, new_place, new_pp, new_play = run_crawler(st.session_state['my_id'], st.session_state['my_pw'])
             
@@ -220,9 +220,8 @@ else:
                 st.rerun()
     
     if st.session_state['profile_img']:
-        # 🚨 [수정] 스트림릿 버그 방지용! HTML을 공백 없이 한 줄로 완전히 압축했습니다. 
-        # (이 부분은 보기 불편하셔도 절대 엔터나 스페이스바를 넣지 마세요!)
-        profile_box_html = f"""<div class="profile-box"><div class="top-section"><div class="profile-img-wrap"><img src="{st.session_state['profile_img']}" class="profile-img"></div><div class="name-section"><p style="margin: 0; color: #7f8c8d; font-size: 0.85em; font-weight: bold;">{st.session_state['title']}</p><p style="margin: 5px 0 0 0; font-size: 1.6em; font-weight: 900; color: #2c3e50;">{st.session_state['nickname']}</p></div></div><div class="bottom-section"><div class="info-left"><span>{st.session_state['last_time']}</span><span>{st.session_state['last_place']}</span></div><div class="stats-right"><div class="pp-text">PP<br>{st.session_state['pp']}</div><div class="playcount-text">Play: {st.session_state['play_count']}</div></div></div></div>"""
+        # 스트림릿 마크다운 버그 방지용 압축 HTML (수정 절대 금지)
+        profile_box_html = f"""<div class="profile-box"><div class="top-section"><div class="profile-img-wrap"><img src="{st.session_state['profile_img']}" class="profile-img"></div><div class="name-section"><p style="margin: 0; color: #7f8c8d; font-size: 0.85em; font-weight: bold;">{st.session_state['title']}</p><p style="margin: 5px 0 0 0; font-size: 1.6em; font-weight: 900; color: #2c3e50;">{st.session_state['nickname']}</p></div></div><div class="bottom-section"><div class="info-left"><span>{st.session_state['last_time']}</span><span>{st.session_state['last_place']}</span></div><div class="stats-right"><div class="pp-text">PP: {st.session_state['pp']}</div><div class="playcount-text">Play: {st.session_state['play_count']}</div></div></div></div>"""
         st.markdown(profile_box_html, unsafe_allow_html=True)
     else:
         st.markdown("**데이터를 불러와주세요! 상단의 [데이터 새로고침] 버튼을 누르면 시작됩니다.**")
