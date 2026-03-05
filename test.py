@@ -26,21 +26,21 @@ st.markdown("""
     /* 상단: 닉네임(좌) + 사진(우, 원본비율) */
     .top-section {
         display: flex;
-        justify-content: space-between; /* 양끝 정렬 */
+        justify-content: space-between; 
         align-items: center;
         gap: 15px;
         margin-bottom: 20px;
     }
     .name-section {
         text-align: left;
-        flex-grow: 1; /* 남은 공간 다 차지 */
+        flex-grow: 1; 
     }
     .profile-img-wrap {
         width: 100px;
         height: 100px;
-        flex-shrink: 0; /* 크기 고정 */
+        flex-shrink: 0; 
         border-radius: 12px;
-        background-color: #f1f2f6; /* 사진 여백 배경색 */
+        background-color: #f1f2f6; 
         display: flex;
         align-items: center;
         justify-content: center;
@@ -53,14 +53,13 @@ st.markdown("""
         width: auto;
         height: auto;
         display: block;
-        /* object-fit: contain; -> 원본 비율 유지하며 박스안에 맞춤 */
     }
     
     /* 하단: 시간&장소(좌) + PP&플레이카운트(우) */
     .bottom-section {
         display: flex;
         justify-content: space-between;
-        align-items: flex-end; /* 아래쪽 기준 정렬 */
+        align-items: flex-end; 
         background-color: #f8f9fa;
         padding: 15px;
         border-radius: 8px;
@@ -79,7 +78,7 @@ st.markdown("""
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
-        gap: 5px; /* PP와 플레이카운트 사이 간격 */
+        gap: 5px; 
     }
     .pp-text {
         color: #e74c3c;
@@ -120,7 +119,6 @@ if 'last_place' not in st.session_state:
     st.session_state['last_place'] = "-"
 if 'pp' not in st.session_state:
     st.session_state['pp'] = "0"
-# [신규] 플레이 카운트 기억 상자
 if 'play_count' not in st.session_state:
     st.session_state['play_count'] = "0"
 
@@ -155,14 +153,12 @@ def run_crawler(user_id, user_pw):
         fetched_place = driver.find_element(By.XPATH, '//*[@id="contents"]/div[1]/div/div/div[1]/div[2]/div[2]/ul/li[2]/i').text
         fetched_pp = driver.find_element(By.XPATH, '//*[@id="contents"]/div[1]/div/div/div[1]/div[3]/p/i[2]').text
         
-        # [수정] 플레이 카운트 XPath 추가 위치
-        # 유저님이 따오신 플레이 카운트 XPath를 아래 따옴표 안에 넣어주세요!
         try:
+            # 🚨 서영님! 요기 아래 따옴표 안에 아까 찾으신 XPath만 다시 넣어주세요! 🚨
             fetched_play_count = driver.find_element(By.XPATH, '//*[@id="contents"]/div[5]/div/div[1]/div[1]/div[1]/i[2]').text
         except:
-            fetched_play_count = "0" # 못 가져오면 0으로 처리
+            fetched_play_count = "0" 
         
-        # 7개 데이터를 반환합니다.
         return fetched_nickname, fetched_img, fetched_title, fetched_time, fetched_place, fetched_pp, fetched_play_count
         
     except Exception as e:
@@ -210,7 +206,6 @@ else:
     st.sidebar.divider()
     
     if st.sidebar.button("연동 해제 (로그아웃)", use_container_width=True):
-        # 기억 상자 초기화
         for key in st.session_state.keys():
             del st.session_state[key]
         st.rerun()
@@ -219,7 +214,6 @@ else:
         
     if st.button("🔄 데이터 새로고침", use_container_width=True):
         with st.spinner('가져오는 중...'):
-            # 7개 데이터를 받아옵니다.
             new_nick, new_img, new_title, new_time, new_place, new_pp, new_play = run_crawler(st.session_state['my_id'], st.session_state['my_pw'])
             
             if new_nick:
@@ -229,14 +223,13 @@ else:
                 st.session_state['last_time'] = new_time
                 st.session_state['last_place'] = new_place
                 st.session_state['pp'] = new_pp
-                st.session_state['play_count'] = new_play # 플레이 카운트 저장
+                st.session_state['play_count'] = new_play 
                 
                 st.success("데이터 새로고침 완료!")
                 time.sleep(1)
                 st.rerun()
     
     if st.session_state['profile_img']:
-        # [수정] HTML 구조 변경: 우측 사진 배치 + 하단 플레이카운트 추가
         profile_box_html = f"""
         <div class="profile-box">
             <div class="top-section">
@@ -249,10 +242,11 @@ else:
                 </div>
             </div>
             
-            # [수정할 부분] 이 부분을 찾아서 아래처럼 바꿔주세요!
             <div class="bottom-section">
                 <div class="info-left">
-                    <span>{st.session_state['last_time']}</span>  <span>{st.session_state['last_place']}</span> </div>
+                    <span>{st.session_state['last_time']}</span>
+                    <span>{st.session_state['last_place']}</span>
+                </div>
                 <div class="stats-right">
                     <div class="pp-text">PP<br>{st.session_state['pp']}</div>
                     <div class="playcount-text">Play: {st.session_state['play_count']}</div>
