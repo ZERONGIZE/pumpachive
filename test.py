@@ -165,7 +165,6 @@ else:
 
     # --- 메인 프로필 화면 ---
     # [수정] 메인 화면 위쪽에도 텍스트 대신 대문 사진을 똑같이 띄워줍니다.
-    st.image("img2.jpg", use_container_width=True)
         
     if st.button("🔄 새로고침", use_container_width=True):
         with st.spinner('가져오는 중...'):
